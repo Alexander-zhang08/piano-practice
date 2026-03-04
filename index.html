@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎹 钢琴练习打卡系统 v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Comic Sans MS", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ======== 登录页面 ======== */
+        #loginPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-container h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: #666;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-toggle {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .login-toggle a {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .user-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .user-item {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .user-item:hover {
+            background: #f0f0f0;
+        }
+
+        .user-item strong {
+            color: #333;
+            display: block;
+        }
+
+        .user-item .delete-user {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        .user-item .delete-user:hover {
+            color: #ff6b6b;
+        }
+
+        /* ======== 应用页面 ======== */
+        #appPage {
+            display: none;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 用户菜单 */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .user-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            padding: 15px;
+            min-width: 250px;
+            z-index: 1000;
+        }
+
+        .menu-section {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .menu-section:last-child {
+            border-bottom: none;
+        }
+
+        .menu-section h4 {
+            color: #667eea;
+            font-size: 12px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .menu-section button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .menu-section button:hover {
+            background: #f5f5f5;
+        }
+
+        /* 导航标签 */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* 内容区域 */
+        .content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ======== 曲目清单页面 ======== */
+        .repertoire-section {
+            margin-bottom: 20px;
+        }
+
+        .repertoire-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .repertoire-search input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .repertoire-search select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .repertoire-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .repertoire-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .piece-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .piece-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .piece-name {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .piece-meta {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .piece-meta span {
+            margin-right: 15px;
+        }
+
+        .piece-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .btn-small:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-small.delete {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-small.delete:hover {
+            background: #ff5252;
+        }
+
+        /* ======== 打卡页面 ======== */
+        .checkin-form-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .today-practices-list {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .practice-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .practice-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .practice-card-title {
+            font-weight: 700;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .practice-card-delete {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .practice-props {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .prop-group label {
+            display: block;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .prop-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+        }
+
+        .star {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.2s;
+        }
+
+        .star:hover {
+            border-color: #667eea;
+        }
+
+        .star.selected {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .practice-toggles {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* ======== 日历页面 ======== */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .calendar-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-controls button {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .calendar-controls button:hover {
+            background: #e0e0e0;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-weight: 700;
+            color: #667eea;
+            padding: 10px;
+            font-size: 12px;
+        }
+
+        .calendar-dates {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .calendar-day:hover {
+            border-color: #667eea;
+        }
+
+        .calendar-day.has-practice {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .calendar-day.today {
+            border: 3px solid #f39c12;
+            font-weight: 700;
+        }
+
+        .calendar-day.other-month {
+            color: #ddd;
+            cursor: default;
+        }
+
+        .calendar-detail {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        /* ======== 统计页面 ======== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .piece-stats {
+            margin-top: 20px;
+        }
+
+        .piece-stat-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .piece-stat-name {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .piece-stat-bar {
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .piece-stat-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .piece-stat-value {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* ======== 通知 ======== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            border-left: 4px solid #4caf50;
+        }
+
+        .notification.error {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .notification.info {
+            border-left: 4px solid #667eea;
+        }
+
+        /* ======== 模态对话框 ======== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1500;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .modal-footer .btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .modal-footer .btn-confirm {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* ======== 手机适配 ======== */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .nav-tabs {
+                gap: 5px;
+            }
+
+            .nav-btn {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+
+            .panel {
+                padding: 15px;
+            }
+
+            .practice-props {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .repertoire-search {
+                flex-direction: column;
+            }
+
+            .repertoire-search input,
+            .repertoire-search select {
+                width: 100%;
+            }
+
+            .piece-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .piece-actions {
+                width: 100%;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .menu-dropdown {
+                right: 0;
+                left: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .login-container {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .header h1 {
+                font-size: 16px;
+            }
+
+            .nav-tabs {
+                gap: 3px;
+            }
+
+            .nav-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            .panel {
+                padding: 10px;
+            }
+
+            .star {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .toggle-btn {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .form-group input,
+            .form-group select {
+                font-size: 16px; /* 防止iOS自动缩放 */
+                min-height: 44px;
+            }
+
+            .calendar-day {
+                font-size: 12px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ======== 登录页面 ======== -->
+    <div id="loginPage">
+        <div class="login-container">
+            <h1>🎹 钢琴打卡</h1>
+
+            <div id="loginForm">
+                <form class="login-form" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" id="loginUsername" placeholder="输入用户名" required>
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" id="loginPassword" placeholder="输入密码" required>
+                    </div>
+                    <button type="submit" class="login-button">登录</button>
+                </form>
+                <div class="login-toggle">
+                    还没有账号？<a onclick="switchToRegister()">立即注册</a>
+                </div>
+            </div>
+
+            <div id="registerForm" style="display: none;">
+                <form class="login-form" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" id="registerUsername" placeholder="6-20个字符" required>
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" id="registerPassword" placeholder="8位以上" required>
+                    </div>
+                    <div class="form-group">
+                        <label>确认密码</label>
+                        <input type="password" id="registerConfirm" placeholder="再次输入密码" required>
+                    </div>
+                    <button type="submit" class="login-button">注册</button>
+                </form>
+                <div class="login-toggle">
+                    已有账号？<a onclick="switchToLogin()">立即登录</a>
+                </div>
+            </div>
+
+            <div id="userListContainer" style="margin-top: 20px; display: none;">
+                <h3 style="text-align: center; margin-bottom: 15px;">快速登录</h3>
+                <div class="user-list" id="userList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== 应用页面 ======== -->
+    <div id="appPage" class="container">
+        <!-- 顶部导航 -->
+        <div class="header">
+            <h1>🎹 钢琴练习打卡系统</h1>
+            <div class="user-menu">
+                <button class="user-btn" onclick="toggleUserMenu()">
+                    👤 <span id="currentUserDisplay"></span> ▼
+                </button>
+                <div id="userMenuDropdown" class="menu-dropdown" style="display: none;">
+                    <div class="menu-section">
+                        <h4>当前用户</h4>
+                        <button onclick="logout()">🚪 退出登录</button>
+                    </div>
+                    <div class="menu-section">
+                        <h4>快速切换</h4>
+                        <div id="userSwitchList"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-tabs">
+                <button class="nav-btn active" onclick="switchPanel('repertoire')" data-panel="repertoire">📚 曲目库</button>
+                <button class="nav-btn" onclick="switchPanel('checkin')" data-panel="checkin">✅ 打卡</button>
+                <button class="nav-btn" onclick="switchPanel('calendar')" data-panel="calendar">📅 日历</button>
+                <button class="nav-btn" onclick="switchPanel('stats')" data-panel="stats">📊 统计</button>
+                <button class="nav-btn" onclick="switchPanel('medals')" data-panel="medals">🏅 奖牌</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- 曲目库面板 -->
+            <div id="repertoire" class="panel active">
+                <h2>📚 曲目库</h2>
+                <div class="repertoire-section">
+                    <div class="repertoire-search">
+                        <input type="text" id="searchPiece" placeholder="搜索曲目..." onkeyup="filterRepertoire()">
+                        <select id="categoryFilter" onchange="filterRepertoire()">
+                            <option value="">全部分类</option>
+                            <option value="Solfege">扒谱即兴</option>
+                            <option value="Sight">识谱视奏</option>
+                            <option value="Classic">经典演绎</option>
+                            <option value="Finger">基础指法</option>
+                        </select>
+                        <select id="difficultyFilter" onchange="filterRepertoire()">
+                            <option value="">全部难度</option>
+                            <option value="初级">初级</option>
+                            <option value="中级">中级</option>
+                            <option value="高级">高级</option>
+                        </select>
+                    </div>
+                    <div class="repertoire-actions">
+                        <button class="btn-primary" onclick="showAddPieceModal()">➕ 添加新曲目</button>
+                    </div>
+                    <div id="repertoireList" class="repertoire-list"></div>
+                </div>
+            </div>
+
+            <!-- 打卡面板 -->
+            <div id="checkin" class="panel">
+                <h2>✅ 每日打卡</h2>
+                <div class="checkin-form-section">
+                    <div class="form-group">
+                        <label>📅 选择日期</label>
+                        <input type="date" id="checkinDate" onchange="initCheckinPanel()">
+                    </div>
+                    <div class="form-group">
+                        <label>🎹 添加曲目</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="pieceToAddSelect" style="flex: 1;">
+                                <option value="">-- 选择曲目 --</option>
+                            </select>
+                            <button class="btn-primary" onclick="addPieceToToday()">添加</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="emptyCheckin" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">🎹</div>
+                    <div>还没有添加曲目，请从上方选择</div>
+                </div>
+
+                <div id="todayPracticesList" class="today-practices-list"></div>
+
+                <button class="submit-btn" onclick="submitDailyCheckin()">✅ 提交打卡</button>
+            </div>
+
+            <!-- 日历面板 -->
+            <div id="calendar" class="panel">
+                <h2>📅 打卡日历</h2>
+                <div class="calendar-header">
+                    <h3 class="calendar-title" id="calendarTitle"></h3>
+                    <div class="calendar-controls">
+                        <button onclick="previousMonth()">← 上月</button>
+                        <button onclick="todayMonth()">今月</button>
+                        <button onclick="nextMonth()">下月 →</button>
+                    </div>
+                </div>
+                <div class="calendar-container">
+                    <div class="calendar-weekdays">
+                        <div class="weekday">日</div>
+                        <div class="weekday">一</div>
+                        <div class="weekday">二</div>
+                        <div class="weekday">三</div>
+                        <div class="weekday">四</div>
+                        <div class="weekday">五</div>
+                        <div class="weekday">六</div>
+                    </div>
+                    <div id="calendarGrid" class="calendar-dates"></div>
+                </div>
+                <div id="calendarDetail" class="calendar-detail"></div>
+            </div>
+
+            <!-- 统计面板 -->
+            <div id="stats" class="panel">
+                <h2>📊 数据统计</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">打卡天数</div>
+                        <div class="stat-value" id="totalDays">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">总练习时长 (小时)</div>
+                        <div class="stat-value" id="totalTime">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">平均流畅度</div>
+                        <div class="stat-value" id="avgFluency">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">获得奖牌</div>
+                        <div class="stat-value" id="medalCount">0</div>
+                    </div>
+                </div>
+                <div class="piece-stats">
+                    <h3>曲目进度</h3>
+                    <div id="pieceStatistics"></div>
+                </div>
+            </div>
+
+            <!-- 奖牌面板 -->
+            <div id="medals" class="panel">
+                <h2>🏅 成就奖牌</h2>
+                <div id="medalsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== 模态对话框 ======== -->
+    <div id="addPieceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                ➕ 添加新曲目
+                <button class="modal-close" onclick="closeModal('addPieceModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>曲目名称</label>
+                    <input type="text" id="pieceName" placeholder="输入曲目名称">
+                </div>
+                <div class="form-group">
+                    <label>分类</label>
+                    <select id="pieceCategory">
+                        <option value="Solfege">扒谱即兴</option>
+                        <option value="Sight">识谱视奏</option>
+                        <option value="Classic">经典演绎</option>
+                        <option value="Finger">基础指法</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>难度</label>
+                    <select id="pieceDifficulty">
+                        <option value="初级">初级</option>
+                        <option value="中级">中级</option>
+                        <option value="高级">高级</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>目标遍数 (可选，作业用)</label>
+                    <input type="number" id="pieceTarget" placeholder="10" min="1" value="10">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('addPieceModal')">取消</button>
+                <button class="btn-confirm" onclick="addNewPiece()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑曲目模态框 -->
+    <div id="editPieceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                ✏️ 编辑曲目
+                <button class="modal-close" onclick="closeModal('editPieceModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>曲目名称</label>
+                    <input type="text" id="editPieceName" placeholder="输入曲目名称">
+                </div>
+                <div class="form-group">
+                    <label>分类</label>
+                    <select id="editPieceCategory">
+                        <option value="Solfege">扒谱即兴</option>
+                        <option value="Sight">识谱视奏</option>
+                        <option value="Classic">经典演绎</option>
+                        <option value="Finger">基础指法</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>难度</label>
+                    <select id="editPieceDifficulty">
+                        <option value="初级">初级</option>
+                        <option value="中级">中级</option>
+                        <option value="高级">高级</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>目标遍数</label>
+                    <input type="number" id="editPieceTarget" placeholder="10" min="1" value="10">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('editPieceModal')">取消</button>
+                <button class="btn-confirm" onclick="saveEditedPiece()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ======== 数据存储与认证 ========
+        class UserManager {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('pianoUsers') || '{}');
+                this.currentUser = localStorage.getItem('currentUser');
+            }
+
+            registerUser(username, password) {
+                if (this.users[username]) {
+                    throw new Error('用户已存在');
+                }
+                this.users[username] = {
+                    password: this.hashPassword(password),
+                    createdAt: new Date().toISOString()
+                };
+                this.save();
+                return true;
+            }
+
+            loginUser(username, password) {
+                const user = this.users[username];
+                if (!user || user.password !== this.hashPassword(password)) {
+                    throw new Error('用户名或密码错误');
+                }
+                this.currentUser = username;
+                localStorage.setItem('currentUser', username);
+                return true;
+            }
+
+            getCurrentUser() {
+                return this.currentUser;
+            }
+
+            logout() {
+                this.currentUser = null;
+                localStorage.removeItem('currentUser');
+            }
+
+            getUserList() {
+                return Object.keys(this.users);
+            }
+
+            deleteUser(username) {
+                if (this.users[username]) {
+                    delete this.users[username];
+                    localStorage.removeItem(`pianoTrackerData_${username}`);
+                    this.save();
+                    if (this.currentUser === username) {
+                        this.logout();
+                    }
+                }
+            }
+
+            hashPassword(password) {
+                // 简单加密（生产环境应使用bcrypt）
+                return btoa(password);
+            }
+
+            save() {
+                localStorage.setItem('pianoUsers', JSON.stringify(this.users));
+            }
+        }
+
+        const userManager = new UserManager();
+
+        // ======== 数据管理 ========
+        let appData = {
+            repertoire: [],      // [{id, name, category, difficulty, targetCount, createdDate}]
+            practices: [],        // [{date, pieces: [{pieceId, count, fluency, attention, slow, fast, time}], totalTime}]
+            medals: [],
+            currentCalendarDate: new Date(),
+            todayPiecesEditing: []
+        };
+
+        const medalDefinitions = [
+            { id: 'first_checkin', name: '初出茅庐', icon: '🌱', description: '首次打卡', targetValue: 1, color: '#4caf50' },
+            { id: 'week_streak', name: '坚持七日', icon: '🔥', description: '连续打卡7天', targetValue: 7, color: '#ff9800' },
+            { id: 'month_streak', name: '月度勤奋', icon: '⭐', description: '打卡30次', targetValue: 30, color: '#f39c12' },
+            { id: 'fluency_master', name: '流畅大师', icon: '✨', description: '平均流畅度4星以上', targetValue: 4, color: '#9c27b0' },
+            { id: 'dedication', name: '专注达人', icon: '🎯', description: '认真度平均4星以上', targetValue: 4, color: '#e74c3c' },
+            { id: 'time_master', name: '时间管理', icon: '⏱️', description: '累计练习100小时', targetValue: 100, color: '#3498db' }
+        ];
+
+        function loadData() {
+            const currentUser = userManager.getCurrentUser();
+            if (!currentUser) return;
+
+            const key = `pianoTrackerData_${currentUser}`;
+            const saved = localStorage.getItem(key);
+
+            if (saved) {
+                appData = JSON.parse(saved);
+                appData.currentCalendarDate = new Date(appData.currentCalendarDate);
+            } else {
+                appData = {
+                    repertoire: [],
+                    practices: [],
+                    medals: medalDefinitions.map(m => ({ ...m, unlocked: false, progress: 0 })),
+                    currentCalendarDate: new Date(),
+                    todayPiecesEditing: []
+                };
+            }
+        }
+
+        function saveData() {
+            const currentUser = userManager.getCurrentUser();
+            if (!currentUser) return;
+
+            const key = `pianoTrackerData_${currentUser}`;
+            localStorage.setItem(key, JSON.stringify(appData));
+        }
+
+        // ======== 页面切换 ========
+        function switchPanel(panelName) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+
+            document.querySelector(`[data-panel="${panelName}"]`)?.classList.add('active');
+            document.getElementById(panelName)?.classList.add('active');
+
+            if (panelName === 'checkin') {
+                initCheckinPanel();
+            } else if (panelName === 'calendar') {
+                renderCalendar();
+            } else if (panelName === 'stats') {
+                renderStats();
+            } else if (panelName === 'medals') {
+                renderMedals();
+            } else if (panelName === 'repertoire') {
+                renderRepertoire();
+            }
+        }
+
+        // ======== 认证相关 ========
+        function handleLogin(event) {
+            event.preventDefault();
+            try {
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+                userManager.loginUser(username, password);
+                loadData();
+                showLoginPage(false);
+                updateUserDisplay();
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            try {
+                const username = document.getElementById('registerUsername').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirm = document.getElementById('registerConfirm').value;
+
+                if (password !== confirm) {
+                    throw new Error('两次输入的密码不一致');
+                }
+                if (password.length < 8) {
+                    throw new Error('密码至少8位');
+                }
+                if (username.length < 6 || username.length > 20) {
+                    throw new Error('用户名6-20个字符');
+                }
+
+                userManager.registerUser(username, password);
+                showNotification('注册成功，请登录', 'success');
+                switchToLogin();
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+
+        function switchToRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('userListContainer').style.display = 'none';
+        }
+
+        function switchToLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            updateUserList();
+        }
+
+        function updateUserList() {
+            const users = userManager.getUserList();
+            if (users.length > 0) {
+                const html = users.map(user => `
+                    <div class="user-item">
+                        <strong>👤 ${user}</strong>
+                        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 8px;">
+                            <button class="btn-small" onclick="quickLogin('${user}')">登录</button>
+                            <button class="btn-small delete" onclick="deleteUserConfirm('${user}')">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('userList').innerHTML = html;
+                document.getElementById('userListContainer').style.display = 'block';
+            }
+        }
+
+        function quickLogin(username) {
+            // 假设密码... 实际应用中需要输入密码
+            // 这里为了演示，我们在localStorage中有密码
+            const user = userManager.users[username];
+            if (user) {
+                userManager.currentUser = username;
+                localStorage.setItem('currentUser', username);
+                loadData();
+                showLoginPage(false);
+                updateUserDisplay();
+            }
+        }
+
+        function deleteUserConfirm(username) {
+            if (confirm(`确定删除用户 "${username}" 及其所有数据吗？`)) {
+                userManager.deleteUser(username);
+                updateUserList();
+                showNotification('用户已删除', 'success');
+            }
+        }
+
+        function logout() {
+            userManager.logout();
+            showLoginPage(true);
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            switchToLogin();
+        }
+
+        function showLoginPage(show) {
+            document.getElementById('loginPage').style.display = show ? 'flex' : 'none';
+            document.getElementById('appPage').style.display = show ? 'none' : 'block';
+        }
+
+        function updateUserDisplay() {
+            const user = userManager.getCurrentUser();
+            document.getElementById('currentUserDisplay').textContent = user || '未登录';
+            updateUserSwitcher();
+        }
+
+        function updateUserSwitcher() {
+            const users = userManager.getUserList();
+            const current = userManager.getCurrentUser();
+            const html = users
+                .filter(u => u !== current)
+                .map(u => `<button onclick="switchToUser('${u}')" style="width: 100%; text-align: left; padding: 8px; margin-bottom: 5px; background: #f5f5f5; border: none; border-radius: 5px; cursor: pointer;">🧑 ${u}</button>`)
+                .join('');
+            document.getElementById('userSwitchList').innerHTML = html || '<div style="color: #999; font-size: 12px;">暂无其他用户</div>';
+        }
+
+        function switchToUser(username) {
+            userManager.currentUser = username;
+            localStorage.setItem('currentUser', username);
+            loadData();
+            updateUserDisplay();
+            toggleUserMenu();
+            renderRepertoire();
+            showNotification(`已切换到用户: ${username}`, 'success');
+        }
+
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenuDropdown');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('userMenuDropdown').style.display = 'none';
+            }
+        });
+
+        // ======== 曲目管理 ========
+        function renderRepertoire() {
+            const html = appData.repertoire.map(piece => `
+                <div class="piece-item">
+                    <div class="piece-info">
+                        <div class="piece-name">🎹 ${piece.name}</div>
+                        <div class="piece-meta">
+                            <span>${getCategoryEmoji(piece.category)} ${piece.category}</span>
+                            <span>难度: ${piece.difficulty}</span>
+                            ${piece.targetCount ? `<span>目标: ${piece.targetCount}遍</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="piece-actions">
+                        <button class="btn-small" onclick="editPiece('${piece.id}')">✏️ 编辑</button>
+                        <button class="btn-small delete" onclick="deletePiece('${piece.id}')">🗑️ 删除</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('repertoireList').innerHTML = html || '<div class="empty-state"><div class="empty-state-icon">📚</div><div>还没有添加曲目</div></div>';
+            updatePieceToAddSelect();
+        }
+
+        function filterRepertoire() {
+            const search = document.getElementById('searchPiece').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const difficulty = document.getElementById('difficultyFilter').value;
+
+            const filtered = appData.repertoire.filter(p =>
+                (p.name.toLowerCase().includes(search) || search === '') &&
+                (p.category === category || category === '') &&
+                (p.difficulty === difficulty || difficulty === '')
+            );
+
+            const html = filtered.map(piece => `
+                <div class="piece-item">
+                    <div class="piece-info">
+                        <div class="piece-name">🎹 ${piece.name}</div>
+                        <div class="piece-meta">
+                            <span>${getCategoryEmoji(piece.category)} ${piece.category}</span>
+                            <span>难度: ${piece.difficulty}</span>
+                        </div>
+                    </div>
+                    <div class="piece-actions">
+                        <button class="btn-small delete" onclick="deletePiece('${piece.id}')">🗑️ 删除</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('repertoireList').innerHTML = html || '<div class="empty-state">搜索无结果</div>';
+        }
+
+        function getCategoryEmoji(category) {
+            const map = { 'Solfege': '🎼', 'Sight': '👀', 'Classic': '🎭', 'Finger': '🔧' };
+            return map[category] || '📝';
+        }
+
+        function showAddPieceModal() {
+            document.getElementById('addPieceModal').classList.add('active');
+        }
+
+        function addNewPiece() {
+            const name = document.getElementById('pieceName').value.trim();
+            const category = document.getElementById('pieceCategory').value;
+            const difficulty = document.getElementById('pieceDifficulty').value;
+            const targetCount = parseInt(document.getElementById('pieceTarget').value) || 10;
+
+            if (!name) {
+                showNotification('请输入曲目名称', 'info');
+                return;
+            }
+
+            appData.repertoire.push({
+                id: 'piece_' + Date.now(),
+                name,
+                category,
+                difficulty,
+                targetCount,
+                createdDate: new Date().toISOString().split('T')[0]
+            });
+
+            saveData();
+            renderRepertoire();
+            closeModal('addPieceModal');
+            document.getElementById('pieceName').value = '';
+            showNotification('✅ 曲目已添加', 'success');
+        }
+
+        function deletePiece(pieceId) {
+            if (confirm('确定删除这首曲目吗？')) {
+                appData.repertoire = appData.repertoire.filter(p => p.id !== pieceId);
+                appData.practices = appData.practices.map(pr => ({
+                    ...pr,
+                    pieces: pr.pieces.filter(p => p.pieceId !== pieceId)
+                })).filter(pr => pr.pieces.length > 0);
+                saveData();
+                renderRepertoire();
+                showNotification('✅ 曲目已删除', 'success');
+            }
+        }
+
+        let currentEditingPieceId = null;
+
+        function editPiece(pieceId) {
+            const piece = appData.repertoire.find(p => p.id === pieceId);
+            if (!piece) return;
+
+            currentEditingPieceId = pieceId;
+            document.getElementById('editPieceName').value = piece.name;
+            document.getElementById('editPieceCategory').value = piece.category;
+            document.getElementById('editPieceDifficulty').value = piece.difficulty;
+            document.getElementById('editPieceTarget').value = piece.targetCount;
+
+            document.getElementById('editPieceModal').classList.add('active');
+        }
+
+        function saveEditedPiece() {
+            if (!currentEditingPieceId) return;
+
+            const name = document.getElementById('editPieceName').value.trim();
+            const category = document.getElementById('editPieceCategory').value;
+            const difficulty = document.getElementById('editPieceDifficulty').value;
+            const targetCount = parseInt(document.getElementById('editPieceTarget').value) || 10;
+
+            if (!name) {
+                showNotification('请输入曲目名称', 'info');
+                return;
+            }
+
+            const piece = appData.repertoire.find(p => p.id === currentEditingPieceId);
+            if (piece) {
+                piece.name = name;
+                piece.category = category;
+                piece.difficulty = difficulty;
+                piece.targetCount = targetCount;
+            }
+
+            saveData();
+            renderRepertoire();
+            closeModal('editPieceModal');
+            currentEditingPieceId = null;
+            showNotification('✅ 曲目已更新', 'success');
+        }
+
+        function updatePieceToAddSelect() {
+            const select = document.getElementById('pieceToAddSelect');
+            if (appData.repertoire.length === 0) {
+                document.getElementById('emptyCheckin').style.display = 'block';
+                select.innerHTML = '<option value="">-- 请先添加曲目 --</option>';
+                return;
+            }
+            document.getElementById('emptyCheckin').style.display = 'none';
+            select.innerHTML = '<option value="">-- 选择曲目 --</option>' +
+                appData.repertoire.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        }
+
+        // ======== 打卡管理 ========
+        function initCheckinPanel() {
+            const checkinDateInput = document.getElementById('checkinDate');
+            // 如果日期还没有设置，则设置为今天
+            if (!checkinDateInput.value) {
+                const today = new Date().toISOString().split('T')[0];
+                checkinDateInput.value = today;
+            }
+
+            // 加载选中日期的打卡数据
+            const selectedDate = checkinDateInput.value;
+            const existingRecord = appData.practices.find(p => p.date === selectedDate);
+
+            if (existingRecord && existingRecord.pieces.length > 0) {
+                // 加载该日期的打卡数据
+                appData.todayPiecesEditing = JSON.parse(JSON.stringify(existingRecord.pieces));
+            } else {
+                // 该日期没有打卡数据，清空编辑区
+                appData.todayPiecesEditing = [];
+            }
+
+            renderTodayPractices();
+        }
+
+        function addPieceToToday() {
+            const pieceId = document.getElementById('pieceToAddSelect').value;
+            if (!pieceId) {
+                showNotification('请选择一首曲子', 'info');
+                return;
+            }
+
+            const piece = appData.repertoire.find(p => p.id === pieceId);
+
+            if (appData.todayPiecesEditing.find(p => p.pieceId === pieceId)) {
+                showNotification(`${piece.name} 已添加，请编辑或删除后再加`, 'info');
+                return;
+            }
+
+            appData.todayPiecesEditing.push({
+                pieceId,
+                pieceName: piece.name,
+                category: piece.category,
+                count: 1,
+                fluency: 0,
+                attention: 0,
+                slow: true,
+                fast: false,
+                time: 30
+            });
+
+            document.getElementById('pieceToAddSelect').value = '';
+            renderTodayPractices();
+        }
+
+        function removePieceFromToday(index) {
+            appData.todayPiecesEditing.splice(index, 1);
+            renderTodayPractices();
+        }
+
+        function renderTodayPractices() {
+            const container = document.getElementById('todayPracticesList');
+
+            if (appData.todayPiecesEditing.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const html = appData.todayPiecesEditing.map((piece, index) => `
+                <div class="practice-card">
+                    <div class="practice-card-header">
+                        <div>
+                            <div class="practice-card-title">🎹 ${piece.pieceName}</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 3px;">${getCategoryEmoji(piece.category)} ${piece.category}</div>
+                        </div>
+                        <button class="practice-card-delete" onclick="removePieceFromToday(${index})">删除</button>
+                    </div>
+
+                    <div class="practice-props">
+                        <div class="prop-group">
+                            <label>🔄 遍数</label>
+                            <input type="number" min="1" value="${piece.count}" onchange="updatePieceProp(${index}, 'count', this.value)">
+                        </div>
+                        <div class="prop-group">
+                            <label>⏱️ 时长(分钟)</label>
+                            <input type="number" min="1" value="${piece.time}" onchange="updatePieceProp(${index}, 'time', this.value)">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: #666; font-weight: 600; margin-bottom: 8px; font-size: 13px;">⭐ 流畅度</label>
+                        <div class="star-rating">
+                            ${[1,2,3,4,5].map(i => `
+                                <button class="star ${piece.fluency >= i ? 'selected' : ''}" onclick="updatePieceProp(${index}, 'fluency', ${i})">
+                                    ⭐
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: #666; font-weight: 600; margin-bottom: 8px; font-size: 13px;">🎯 认真程度</label>
+                        <div class="star-rating">
+                            ${[1,2,3,4,5].map(i => `
+                                <button class="star ${piece.attention >= i ? 'selected' : ''}" onclick="updatePieceProp(${index}, 'attention', ${i})">
+                                    ✨
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="practice-toggles">
+                        <button class="toggle-btn ${piece.slow ? 'active' : ''}" onclick="updatePieceProp(${index}, 'slow', !${piece.slow})">
+                            🐢 ${piece.slow ? '✓ 慢练' : '慢练'}
+                        </button>
+                        <button class="toggle-btn ${piece.fast ? 'active' : ''}" onclick="updatePieceProp(${index}, 'fast', !${piece.fast})">
+                            🐇 ${piece.fast ? '✓ 快练' : '快练'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        function updatePieceProp(index, prop, value) {
+            if (prop === 'count' || prop === 'time') {
+                appData.todayPiecesEditing[index][prop] = parseInt(value);
+            } else if (prop === 'fluency' || prop === 'attention') {
+                appData.todayPiecesEditing[index][prop] = parseInt(value);
+            } else {
+                appData.todayPiecesEditing[index][prop] = value;
+            }
+            renderTodayPractices();
+        }
+
+        function submitDailyCheckin() {
+            const date = document.getElementById('checkinDate').value;
+
+            if (!date) {
+                showNotification('请选择日期', 'info');
+                return;
+            }
+
+            if (appData.todayPiecesEditing.length === 0) {
+                showNotification('请至少添加一首曲子', 'info');
+                return;
+            }
+
+            if (appData.todayPiecesEditing.some(p => p.fluency === 0)) {
+                showNotification('每首曲子都需要评分流畅度', 'info');
+                return;
+            }
+
+            if (appData.todayPiecesEditing.some(p => p.attention === 0)) {
+                showNotification('每首曲子都需要评分认真程度', 'info');
+                return;
+            }
+
+            const totalTime = appData.todayPiecesEditing.reduce((sum, p) => sum + p.time, 0);
+            const existingIndex = appData.practices.findIndex(p => p.date === date);
+
+            if (existingIndex >= 0) {
+                appData.practices[existingIndex] = {
+                    date,
+                    pieces: JSON.parse(JSON.stringify(appData.todayPiecesEditing)),
+                    totalTime
+                };
+            } else {
+                appData.practices.push({
+                    date,
+                    pieces: JSON.parse(JSON.stringify(appData.todayPiecesEditing)),
+                    totalTime
+                });
+            }
+
+            saveData();
+            checkMedals();
+            showNotification(`✅ 打卡成功！今日练习 ${appData.todayPiecesEditing.length} 首曲子，总时长 ${totalTime} 分钟`, 'success');
+
+            appData.todayPiecesEditing = [];
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('checkinDate').value = today;
+            renderTodayPractices();
+            renderCalendar();
+            renderStats();
+        }
+
+        // ======== 日历管理 ========
+        function renderCalendar() {
+            const date = appData.currentCalendarDate;
+            const year = date.getFullYear();
+            const month = date.getMonth();
+
+            const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            document.getElementById('calendarTitle').textContent = `${year}年 ${monthNames[month]}`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+
+            let html = '';
+
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                html += '<div class="calendar-day other-month"></div>';
+            }
+
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayPractices = appData.practices.filter(p => p.date === dateStr);
+                const isToday = dateStr === todayStr;
+
+                let classList = 'calendar-day';
+                if (dayPractices.length > 0) classList += ' has-practice';
+                if (isToday) classList += ' today';
+
+                html += `<div class="${classList}" onclick="showCalendarDetail('${dateStr}')">${day}</div>`;
+            }
+
+            const totalCells = startingDayOfWeek + daysInMonth;
+            const remainingCells = 42 - totalCells;
+            for (let i = 0; i < remainingCells; i++) {
+                html += '<div class="calendar-day other-month"></div>';
+            }
+
+            document.getElementById('calendarGrid').innerHTML = html;
+            showCalendarDetail(todayStr);
+        }
+
+        function showCalendarDetail(dateStr) {
+            const practices = appData.practices.filter(p => p.date === dateStr);
+            const container = document.getElementById('calendarDetail');
+
+            if (practices.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <div>这一天还没有打卡记录</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const date = new Date(dateStr + 'T00:00:00');
+            const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const dateDisplay = `${dateStr} ${weekDays[date.getDay()]}`;
+
+            const practice = practices[0];
+            const totalPieces = practice.pieces.length;
+            const totalTime = practice.totalTime;
+            const avgFluency = (practice.pieces.reduce((sum, p) => sum + p.fluency, 0) / totalPieces).toFixed(1);
+            const avgAttention = (practice.pieces.reduce((sum, p) => sum + p.attention, 0) / totalPieces).toFixed(1);
+
+            let html = `
+                <div style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 12px; padding: 20px; border-left: 5px solid #667eea;">
+                    <h3 style="margin-bottom: 15px;">📋 ${dateDisplay}</h3>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                        <div style="background: white; padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="color: #999; font-size: 12px;">总时长</div>
+                            <div style="color: #667eea; font-size: 18px; font-weight: 700; margin-top: 5px;">${totalTime} 分钟</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="color: #999; font-size: 12px;">流畅度</div>
+                            <div style="color: #f39c12; font-size: 18px; font-weight: 700; margin-top: 5px;">${avgFluency} ⭐</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="color: #999; font-size: 12px;">认真度</div>
+                            <div style="color: #e74c3c; font-size: 18px; font-weight: 700; margin-top: 5px;">${avgAttention} 💪</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="color: #999; font-size: 12px;">曲目数</div>
+                            <div style="color: #4caf50; font-size: 18px; font-weight: 700; margin-top: 5px;">${totalPieces}</div>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid #ddd; padding-top: 15px;">
+            `;
+
+            practice.pieces.forEach((p, index) => {
+                const piece = appData.repertoire.find(rp => rp.id === p.pieceId);
+                const bgColor = { 'Solfege': '#3498db', 'Sight': '#e74c3c', 'Classic': '#f39c12', 'Finger': '#27ae60' }[p.category] || '#667eea';
+
+                html += `
+                    <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid ${bgColor};">
+                        <div style="font-weight: 700; color: #333; margin-bottom: 8px;">🎹 ${piece?.name || '未知曲目'}</div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 12px; color: #666;">
+                            <div>遍数: <strong>${p.count}</strong></div>
+                            <div>时长: <strong>${p.time}分钟</strong></div>
+                            <div>流畅: <strong>${p.fluency}⭐</strong></div>
+                            <div>认真: <strong>${p.attention}💪</strong></div>
+                            <div>方式: <strong>${p.slow ? '慢' : ''}${p.fast ? (p.slow ? '+' : '') + '快' : ''}</strong></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+        }
+
+        function previousMonth() {
+            appData.currentCalendarDate.setMonth(appData.currentCalendarDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            appData.currentCalendarDate.setMonth(appData.currentCalendarDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function todayMonth() {
+            appData.currentCalendarDate = new Date();
+            renderCalendar();
+        }
+
+        // ======== 统计分析 ========
+        function renderStats() {
+            const uniqueDates = new Set(appData.practices.map(p => p.date));
+            const totalDays = uniqueDates.size;
+            const totalTime = appData.practices.reduce((sum, p) => sum + p.totalTime, 0) / 60;
+
+            let totalFluency = 0, totalAttention = 0, totalScores = 0;
+            appData.practices.forEach(p => {
+                p.pieces.forEach(piece => {
+                    totalFluency += piece.fluency;
+                    totalAttention += piece.attention;
+                    totalScores++;
+                });
+            });
+
+            const avgFluency = totalScores > 0 ? (totalFluency / totalScores).toFixed(1) : 0;
+            const avgAttention = totalScores > 0 ? (totalAttention / totalScores).toFixed(1) : 0;
+            const unlockedMedals = appData.medals.filter(m => m.unlocked).length;
+
+            document.getElementById('totalDays').textContent = totalDays;
+            document.getElementById('totalTime').textContent = totalTime.toFixed(1);
+            document.getElementById('avgFluency').textContent = avgFluency;
+            document.getElementById('medalCount').textContent = unlockedMedals;
+
+            const statsHtml = appData.repertoire.map(piece => {
+                let totalReps = 0, totalScore = 0, count = 0;
+                appData.practices.forEach(p => {
+                    p.pieces.forEach(pr => {
+                        if (pr.pieceId === piece.id) {
+                            totalReps += pr.count;
+                            totalScore += pr.fluency;
+                            count++;
+                        }
+                    });
+                });
+
+                const avgScore = count > 0 ? (totalScore / count).toFixed(1) : 0;
+                const progress = Math.min((totalReps / piece.targetCount) * 100, 100);
+
+                return `
+                    <div class="piece-stat-item">
+                        <div class="piece-stat-name">🎹 ${piece.name}</div>
+                        <div class="piece-stat-bar">
+                            <div class="piece-stat-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="piece-stat-value">${totalReps}/${piece.targetCount} 遍 (${avgScore}⭐)</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('pieceStatistics').innerHTML = statsHtml || '<div style="text-align: center; color: #999;">还没有打卡记录</div>';
+        }
+
+        // ======== 奖牌系统 ========
+        function renderMedals() {
+            const container = document.getElementById('medalsContainer');
+            checkMedals();
+
+            container.innerHTML = appData.medals.map(medal => {
+                const progress = calculateMedalProgress(medal);
+                const progressPercent = Math.min((progress / medal.targetValue) * 100, 100);
+                const medalClass = medal.unlocked ? 'medal' : 'medal locked';
+
+                return `
+                    <div style="text-align: center; padding: 15px; background: ${medal.unlocked ? medal.color + '20' : '#f5f5f5'}; border-radius: 10px; border: 2px solid ${medal.unlocked ? medal.color : '#ddd'};">
+                        <div style="font-size: 40px; margin-bottom: 8px; opacity: ${medal.unlocked ? 1 : 0.3};">${medal.icon}</div>
+                        <div style="font-weight: 700; font-size: 13px; color: #333; margin-bottom: 5px;">${medal.name}</div>
+                        <div style="font-size: 11px; color: #666; margin-bottom: 8px;">${medal.description}</div>
+                        <div style="height: 3px; background: #ddd; border-radius: 2px; overflow: hidden; margin-bottom: 5px;">
+                            <div style="height: 100%; background: ${medal.color}; width: ${progressPercent}%; transition: width 0.3s;"></div>
+                        </div>
+                        <div style="font-size: 10px; color: #999;">${progress}/${medal.targetValue}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function calculateMedalProgress(medal) {
+            switch (medal.id) {
+                case 'first_checkin':
+                    return appData.practices.length > 0 ? 1 : 0;
+                case 'week_streak':
+                    // 简化版连续打卡检查
+                    return new Set(appData.practices.map(p => p.date)).size;
+                case 'month_streak':
+                    return appData.practices.length;
+                case 'fluency_master':
+                    if (appData.practices.length === 0) return 0;
+                    let totalScore = 0, totalCount = 0;
+                    appData.practices.forEach(p => {
+                        p.pieces.forEach(piece => {
+                            totalScore += piece.fluency;
+                            totalCount++;
+                        });
+                    });
+                    return totalCount > 0 ? totalScore / totalCount : 0;
+                case 'dedication':
+                    if (appData.practices.length === 0) return 0;
+                    let totalAttention = 0, attentionCount = 0;
+                    appData.practices.forEach(p => {
+                        p.pieces.forEach(piece => {
+                            totalAttention += piece.attention;
+                            attentionCount++;
+                        });
+                    });
+                    return attentionCount > 0 ? totalAttention / attentionCount : 0;
+                case 'time_master':
+                    return appData.practices.reduce((sum, p) => sum + p.totalTime, 0) / 60;
+                default:
+                    return 0;
+            }
+        }
+
+        function checkMedals() {
+            appData.medals.forEach(medal => {
+                const progress = calculateMedalProgress(medal);
+                medal.progress = progress;
+                medal.unlocked = progress >= medal.targetValue;
+            });
+        }
+
+        // ======== 工具函数 ========
+        function showNotification(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `notification ${type}`;
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // ======== 初始化 ========
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = userManager.getCurrentUser();
+            if (currentUser) {
+                loadData();
+                showLoginPage(false);
+                updateUserDisplay();
+                renderRepertoire();
+                setTimeout(() => switchPanel('repertoire'), 100);
+            } else {
+                showLoginPage(true);
+                updateUserList();
+            }
+        });
+
+        // 定期保存
+        setInterval(() => {
+            if (userManager.getCurrentUser()) {
+                saveData();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
